@@ -14,6 +14,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class IncomingLetterController extends Controller
 {
@@ -64,7 +66,7 @@ class IncomingLetterController extends Controller
             'since' => $request->since,
             'until' => $request->until,
             'filter' => $request->filter,
-            'config' => Config::pluck('value','code')->toArray(),
+            'config' => Config::pluck('value', 'code')->toArray(),
             'title' => $title,
         ]);
     }
@@ -90,7 +92,7 @@ class IncomingLetterController extends Controller
     public function store(StoreLetterRequest $request): RedirectResponse
     {
         try {
-            $user = auth()->user();
+            $user = Auth::user();
 
             if ($request->type != LetterType::INCOMING->type()) throw new \Exception(__('menu.transaction.incoming_letter'));
             $newLetter = $request->validated();
@@ -100,9 +102,8 @@ class IncomingLetterController extends Controller
                 foreach ($request->attachments as $attachment) {
                     $extension = $attachment->getClientOriginalExtension();
                     if (!in_array($extension, ['png', 'jpg', 'jpeg', 'pdf'])) continue;
-                    $filename = time() . '-'. $attachment->getClientOriginalName();
-                    $filename = str_replace(' ', '-', $filename);
-                    $attachment->storeAs('public/attachments', $filename);
+                    $filename = uniqid() . '.' . $extension;
+                    $attachment->storeAs('attachments', $filename, 'public');
                     Attachment::create([
                         'filename' => $filename,
                         'extension' => $extension,
@@ -161,9 +162,8 @@ class IncomingLetterController extends Controller
                 foreach ($request->attachments as $attachment) {
                     $extension = $attachment->getClientOriginalExtension();
                     if (!in_array($extension, ['png', 'jpg', 'jpeg', 'pdf'])) continue;
-                    $filename = time() . '-'. $attachment->getClientOriginalName();
-                    $filename = str_replace(' ', '-', $filename);
-                    $attachment->storeAs('public/attachments', $filename);
+                    $filename = uniqid() . '.' . $extension;
+                    $attachment->storeAs('attachments', $filename, 'public');
                     Attachment::create([
                         'filename' => $filename,
                         'extension' => $extension,
@@ -187,6 +187,14 @@ class IncomingLetterController extends Controller
     public function destroy(Letter $incoming): RedirectResponse
     {
         try {
+
+            foreach ($incoming->attachments as $attachment) {
+                $filePath = 'attachments/' . $attachment->filename;
+                // Hapus dari storage
+                if (Storage::disk('public')->exists($filePath)) {
+                    unlink(public_path('/storage/' . $filePath));
+                }
+            }
             $incoming->delete();
             return redirect()
                 ->route('transaction.incoming.index')

@@ -32,7 +32,7 @@
     <meta name="description" content=""/>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{asset('sneat/img/favicon/favicon.ico')}}"/>
+    <link rel="icon" type="image/x-icon" href="{{ asset('sneat/img/favicon/favicon.ico') }}"/>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -43,16 +43,16 @@
     />
 
     <!-- Icons. Uncomment required icon fonts -->
-    <link rel="stylesheet" href="{{asset('sneat/vendor/fonts/boxicons.css')}}"/>
+    <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/boxicons.css') }}"/>
 
     <!-- Core CSS -->
-    <link rel="stylesheet" class="template-customizer-core-css" href="{{asset('sneat/vendor/css/core.css')}}"/>
+    <link rel="stylesheet" class="template-customizer-core-css" href="{{ asset('sneat/vendor/css/core.css') }}"/>
     <link rel="stylesheet" class="template-customizer-theme-css"
-          href="{{asset('sneat/vendor/css/theme-default.css')}}"/>
-    <link rel="stylesheet" href="{{asset('sneat/css/demo.css')}}"/>
+          href="{{ asset('sneat/vendor/css/theme-default.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('sneat/css/demo.css') }}"/>
 
     <!-- Page -->
-    <link rel="stylesheet" href="{{asset('sneat/vendor/css/pages/page-auth.css')}}"/>
+    <link rel="stylesheet" href="{{ asset('sneat/vendor/css/pages/page-auth.css') }}"/>
 </head>
 
 <body>
@@ -77,6 +77,7 @@
                             <x-input-form
                                 name="email"
                                 type="email"
+                            value="{{ old('email') }}"
                                 :label="__('model.user.email')"
                             />
                         </div>
@@ -84,6 +85,7 @@
                             <x-input-form
                                 name="password"
                                 type="password"
+                            value="{{ old('password') }}"
                                 :label="__('model.user.password')"
                             />
                         </div>

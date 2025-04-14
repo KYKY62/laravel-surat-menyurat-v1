@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\LetterType;
 use App\Helpers\GeneralHelper;
 use App\Http\Requests\UpdateConfigRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -18,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use JetBrains\PhpStorm\NoReturn;
+
 
 class PageController extends Controller
 {
@@ -60,7 +59,7 @@ class PageController extends Controller
     public function profile(Request $request): View
     {
         return view('pages.profile', [
-            'data' => auth()->user(),
+            'data' => Auth::user(),
         ]);
     }
 
@@ -73,21 +72,21 @@ class PageController extends Controller
         try {
             $newProfile = $request->validated();
             if ($request->hasFile('profile_picture')) {
-//               DELETE OLD PICTURE
-                $oldPicture = auth()->user()->profile_picture;
+                //               DELETE OLD PICTURE
+                $oldPicture = Auth::user()->profile_picture;
                 if (str_contains($oldPicture, '/storage/avatars/')) {
                     $url = parse_url($oldPicture, PHP_URL_PATH);
                     Storage::delete(str_replace('/storage', 'public', $url));
                 }
 
-//                UPLOAD NEW PICTURE
+                //                UPLOAD NEW PICTURE
                 $filename = time() .
                     '-' . $request->file('profile_picture')->getFilename() .
                     '.' . $request->file('profile_picture')->getClientOriginalExtension();
                 $request->file('profile_picture')->storeAs('public/avatars', $filename);
                 $newProfile['profile_picture'] = asset('storage/avatars/' . $filename);
             }
-            auth()->user()->update($newProfile);
+            Auth::user()->update($newProfile);
             return back()->with('success', __('menu.general.success'));
         } catch (\Throwable $exception) {
             return back()->with('error', $exception->getMessage());
@@ -100,7 +99,7 @@ class PageController extends Controller
     public function deactivate(): RedirectResponse
     {
         try {
-            auth()->user()->update(['is_active' => false]);
+            Auth::user()->update(['is_active' => false]);
             Auth::logout();
             return back()->with('success', __('menu.general.success'));
         } catch (\Throwable $exception) {
@@ -149,7 +148,7 @@ class PageController extends Controller
             $oldPicture = $attachment->path_url;
             if (str_contains($oldPicture, '/storage/attachments/')) {
                 $url = parse_url($oldPicture, PHP_URL_PATH);
-                Storage::delete(str_replace('/storage', 'public', $url));
+                unlink(public_path('/' . $url));
             }
             $attachment->delete();
             return back()->with('success', __('menu.general.success'));

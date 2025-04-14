@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+
 class GeneralHelper
 {
     public static function calculateChangePercentage($initial, $final): float
@@ -29,10 +30,11 @@ class GeneralHelper
 
     public static function greeting(string $name = ''): string
     {
-        if ($name == '') $name = auth()->user()->name;
+        if ($name == '') $name = \Illuminate\Support\Facades\Auth::user()->name ?? 'Guest';
 
         $greetingLang = 'evening';
         $currentHour = now()->hour;
+
 
         if ($currentHour < 4) {
             $greetingLang = 'night';
@@ -44,6 +46,6 @@ class GeneralHelper
             $greetingLang = 'night';
         }
 
-        return __( 'dashboard.greeting.' . $greetingLang, ['name' => $name]);
+        return __('dashboard.greeting.' . $greetingLang, ['name' => $name]);
     }
 }
